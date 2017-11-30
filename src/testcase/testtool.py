@@ -38,7 +38,15 @@ class public_tools():
         button = self.find_ele(methods)
         time.sleep(1)
         button.click()
-
+    def convertData(self,data):
+        if type(data)==dict:
+            li = []
+            for c, k in enumerate(list_data):
+                li.append("=".join([k, str(list_data[k])]))
+            print "&".join(li)
+            return "&".join(li)
+        else:
+            pass
     def do_login(self, name, password):
         self.driver.get(host+page_path["pathLogin"])
         self.type("name,email", name)
@@ -119,9 +127,8 @@ class public_tools():
         }
         data_encode=urllib.urlencode(data)
         log_req=urllib2.Request(host+page_path["pathLogin"],data=data_encode)
-        log_res=urllib2.urlopen(log_req).read()
-        for i ,x in enumerate(self.cj):
-            print i,x
+        log_res=urllib2.urlopen(log_req)
+        print "登录状态是 "+str(log_res.getcode())
 
 
     def form_list_api(self,page="all"):
@@ -132,10 +139,10 @@ class public_tools():
         :param details:
         :return:
         """
-        self.login_api()
         self.list_req=urllib2.Request(host+page_path["pathApiList"])
-        listPostData="status=all&categoryId=all&projectId=all&searchContent=&collectForm=0&pageSize=10&authorId=7"
+        listPostData=self.convertData(list_data)
         self.list_res=urllib2.urlopen(self.list_req,data=listPostData)
+        print "请求列表接口状态是",self.list_res.getcode()
         formAll=json.load(self.list_res)
         return formAll
 def single_suite(testClass,testCase):
@@ -166,3 +173,4 @@ if __name__=="__main__":
     #single_suite(formCenter,"test_enter_formList")  #执行单条测试用例
     a=public_tools()
     a.login_api()
+    a.form_list_api()
